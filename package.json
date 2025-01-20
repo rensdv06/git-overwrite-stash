@@ -15,7 +15,8 @@
     "commands": [
       {
         "command": "git-overwrite-stash.overwriteStash",
-        "title": "Overwrite a git stash"
+        "title": "Overwrite a Git Stash",
+        "category": "Git Overwrite Stash"
       }
     ]
   },
