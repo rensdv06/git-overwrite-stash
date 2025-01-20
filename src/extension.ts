@@ -69,7 +69,17 @@ async function promptToEnterStashMessage(defaultValue: string) {
     });
 }
 
-async function overwriteStash() {
+async function overwriteStash(
+    id: number,
+    message: string,
+    workspaceFolder: string
+) {
+    const options = { cwd: workspaceFolder };
+    await execAsync(`git stash drop "stash@{${id}}"`, options);
+    await execAsync(`git stash -u -m "${message}"`, options);
+}
+
+async function overwriteStashCommand() {
     try {
         const workspaceFolder = getWorkspaceFolder();
         const stashes = await getStashes(workspaceFolder);
@@ -81,7 +91,11 @@ async function overwriteStash() {
         const stashMessage = await promptToEnterStashMessage(
             pickedStash.message
         );
-        console.log(stashMessage);
+        if (stashMessage === undefined) {
+            return;
+        }
+
+        overwriteStash(pickedStash.id, stashMessage, workspaceFolder);
     } catch (error: any) {
         vscode.window.showErrorMessage(error.message ?? error);
     }
@@ -90,7 +104,7 @@ async function overwriteStash() {
 export function activate(context: vscode.ExtensionContext) {
     const disposable = vscode.commands.registerCommand(
         "git-overwrite-stash.overwriteStash",
-        overwriteStash
+        overwriteStashCommand
     );
 
     context.subscriptions.push(disposable);
