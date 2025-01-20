@@ -14,8 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "git-overwrite-stash.helloWorld",
-        "title": "Hello World"
+        "command": "git-overwrite-stash.overwriteStash",
+        "title": "Overwrite a git stash"
       }
     ]
   },

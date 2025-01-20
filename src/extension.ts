@@ -1,26 +1,79 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
+import { exec } from "child_process";
+import { promisify } from "util";
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+const execAsync = promisify(exec);
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "git-overwrite-stash" is now active!');
+function getWorkspaceFolder() {
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    if (!workspaceFolder) {
+        throw new Error("No workspace folder found.");
+    }
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('git-overwrite-stash.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Git overwrite stash!');
-	});
-
-	context.subscriptions.push(disposable);
+    return workspaceFolder;
 }
 
-// This method is called when your extension is deactivated
+function extractStashDataFromLine(line: string) {
+    const match = line.match(/stash@{(\d+)}: On (.+): (.+)/);
+    if (!match) {
+        throw new Error(
+            `Failed to extract stash data from line. No match found for line '${line}'`
+        );
+    }
+
+    const [, id, branch, message] = match;
+    return {
+        label: `#${id}: ${message}`,
+        description: branch,
+        id,
+        message,
+    };
+}
+
+async function getStashes(workspaceFolder: string) {
+    const { stdout, stderr } = await execAsync("git stash list", {
+        cwd: workspaceFolder,
+    });
+
+    if (stderr) {
+        throw new Error("Failed to get stashes: " + stderr);
+    }
+
+    return stdout.trim().split("\n").map(extractStashDataFromLine);
+}
+
+async function promptToPickStash(stashes: vscode.QuickPickItem[]) {
+    const pickedStash = await vscode.window.showQuickPick(stashes, {
+        placeHolder: "Pick a stash to overwrite",
+    });
+
+    if (!pickedStash) {
+        console.log("No stash picked.");
+    }
+
+    return pickedStash;
+}
+
+async function overwriteStash() {
+    try {
+        const workspaceFolder = getWorkspaceFolder();
+        const stashes = await getStashes(workspaceFolder);
+        const pickedStash = await promptToPickStash(stashes);
+        if (pickedStash) {
+            console.log(`You picked ${pickedStash.label}`);
+        }
+    } catch (error: any) {
+        vscode.window.showErrorMessage(error.message ?? error);
+    }
+}
+
+export function activate(context: vscode.ExtensionContext) {
+    const disposable = vscode.commands.registerCommand(
+        "git-overwrite-stash.overwriteStash",
+        overwriteStash
+    );
+
+    context.subscriptions.push(disposable);
+}
+
 export function deactivate() {}
