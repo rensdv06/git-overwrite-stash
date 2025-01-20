@@ -4,6 +4,13 @@ import { promisify } from "util";
 
 const execAsync = promisify(exec);
 
+interface Stash {
+    label: string;
+    description: string;
+    id: number;
+    message: string;
+}
+
 function getWorkspaceFolder() {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
     if (!workspaceFolder) {
@@ -25,7 +32,7 @@ function extractStashDataFromLine(line: string) {
     return {
         label: `#${id}: ${message}`,
         description: branch,
-        id,
+        id: parseInt(id),
         message,
     };
 }
@@ -42,7 +49,7 @@ async function getStashes(workspaceFolder: string) {
     return stdout.trim().split("\n").map(extractStashDataFromLine);
 }
 
-async function promptToPickStash(stashes: vscode.QuickPickItem[]) {
+async function promptToPickStash(stashes: Stash[]) {
     const pickedStash = await vscode.window.showQuickPick(stashes, {
         placeHolder: "Pick a stash to overwrite",
     });
@@ -54,14 +61,27 @@ async function promptToPickStash(stashes: vscode.QuickPickItem[]) {
     return pickedStash;
 }
 
+async function promptToEnterStashMessage(defaultValue: string) {
+    return await vscode.window.showInputBox({
+        value: defaultValue,
+        prompt: "Enter stash message",
+        placeHolder: "Enter stash message",
+    });
+}
+
 async function overwriteStash() {
     try {
         const workspaceFolder = getWorkspaceFolder();
         const stashes = await getStashes(workspaceFolder);
         const pickedStash = await promptToPickStash(stashes);
-        if (pickedStash) {
-            console.log(`You picked ${pickedStash.label}`);
+        if (!pickedStash) {
+            return;
         }
+
+        const stashMessage = await promptToEnterStashMessage(
+            pickedStash.message
+        );
+        console.log(stashMessage);
     } catch (error: any) {
         vscode.window.showErrorMessage(error.message ?? error);
     }
