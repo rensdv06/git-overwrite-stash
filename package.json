@@ -3,6 +3,10 @@
   "displayName": "Git overwrite stash",
   "description": "Adds the option to overwrite a git stash",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/squiddy-code/git-overwrite-stash.git"
+  },
   "engines": {
     "vscode": "^1.96.0"
   },
