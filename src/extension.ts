@@ -1,18 +1,18 @@
 import * as vscode from "vscode";
-import { exec } from "child_process";
+import { exec, ExecOptions } from "child_process";
 import { promisify } from "util";
 import CancellationError from "./cancellation_error";
 import Stash from "./stash";
 
 const execAsync = promisify(exec);
 
-function getWorkspaceFolder() {
+function getExecOptions() {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
     if (!workspaceFolder) {
         throw new Error("No workspace folder found.");
     }
 
-    return workspaceFolder;
+    return { cwd: workspaceFolder };
 }
 
 function extractStashDataFromLine(line: string) {
@@ -32,10 +32,8 @@ function extractStashDataFromLine(line: string) {
     };
 }
 
-async function getStashes(workspaceFolder: string) {
-    const { stdout, stderr } = await execAsync("git stash list", {
-        cwd: workspaceFolder,
-    });
+async function getStashes(execOptions: ExecOptions) {
+    const { stdout, stderr } = await execAsync("git stash list", execOptions);
 
     if (stderr) {
         throw new Error("Failed to get stashes: " + stderr);
@@ -73,22 +71,21 @@ async function promptToEnterStashMessage(defaultValue: string) {
 async function overwriteStash(
     id: number,
     message: string,
-    workspaceFolder: string
+    execOptions: ExecOptions
 ) {
-    const options = { cwd: workspaceFolder };
-    await execAsync(`git stash drop "stash@{${id}}"`, options);
-    await execAsync(`git stash -u -m "${message}"`, options);
+    await execAsync(`git stash drop "stash@{${id}}"`, execOptions);
+    await execAsync(`git stash -u -m "${message}"`, execOptions);
 }
 
 async function overwriteStashCommand() {
     try {
-        const workspaceFolder = getWorkspaceFolder();
-        const stashes = await getStashes(workspaceFolder);
+        const execOptions = getExecOptions();
+        const stashes = await getStashes(execOptions);
         const pickedStash = await promptToPickStash(stashes);
         const stashMessage = await promptToEnterStashMessage(
             pickedStash.message
         );
-        overwriteStash(pickedStash.id, stashMessage, workspaceFolder);
+        overwriteStash(pickedStash.id, stashMessage, execOptions);
     } catch (error: any) {
         if (error instanceof CancellationError) {
             console.log(error.message);
