@@ -1,15 +1,9 @@
 import * as vscode from "vscode";
 import { exec } from "child_process";
 import { promisify } from "util";
+import Stash from "./stash";
 
 const execAsync = promisify(exec);
-
-interface Stash {
-    label: string;
-    description: string;
-    id: number;
-    message: string;
-}
 
 function getWorkspaceFolder() {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
