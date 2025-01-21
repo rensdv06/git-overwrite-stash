@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { exec } from "child_process";
 import { promisify } from "util";
+import CancellationError from "./cancellation_error";
 import Stash from "./stash";
 
 const execAsync = promisify(exec);
@@ -49,18 +50,24 @@ async function promptToPickStash(stashes: Stash[]) {
     });
 
     if (!pickedStash) {
-        console.log("No stash picked.");
+        throw new CancellationError("No stash picked.");
     }
 
     return pickedStash;
 }
 
 async function promptToEnterStashMessage(defaultValue: string) {
-    return await vscode.window.showInputBox({
+    const stashMessage = await vscode.window.showInputBox({
         value: defaultValue,
         prompt: "Enter stash message",
         placeHolder: "Enter stash message",
     });
+
+    if (stashMessage === undefined) {
+        throw new CancellationError("No stash message entered.");
+    }
+
+    return stashMessage;
 }
 
 async function overwriteStash(
@@ -78,20 +85,16 @@ async function overwriteStashCommand() {
         const workspaceFolder = getWorkspaceFolder();
         const stashes = await getStashes(workspaceFolder);
         const pickedStash = await promptToPickStash(stashes);
-        if (!pickedStash) {
-            return;
-        }
-
         const stashMessage = await promptToEnterStashMessage(
             pickedStash.message
         );
-        if (stashMessage === undefined) {
-            return;
-        }
-
         overwriteStash(pickedStash.id, stashMessage, workspaceFolder);
     } catch (error: any) {
-        vscode.window.showErrorMessage(error.message ?? error);
+        if (error instanceof CancellationError) {
+            console.log(error.message);
+        } else {
+            vscode.window.showErrorMessage(error.message ?? error);
+        }
     }
 }
 
