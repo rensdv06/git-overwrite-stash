@@ -39,6 +39,10 @@ async function getStashes(execOptions: ExecOptions) {
         throw new Error("Failed to get stashes: " + stderr);
     }
 
+    if (!stdout) {
+        throw new Error("No stashes found.");
+    }
+
     return stdout.trim().split("\n").map(extractStashDataFromLine);
 }
 
