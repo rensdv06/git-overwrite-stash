@@ -2,11 +2,11 @@
   "name": "git-overwrite-stash",
   "displayName": "Git overwrite stash",
   "description": "Adds a command to overwrite a Git stash",
-  "version": "1.0.0",
-  "publisher": "squiddy-code",
+  "version": "1.0.1",
+  "publisher": "rensdv06",
   "repository": {
     "type": "git",
-    "url": "git://github.com/squiddy-code/git-overwrite-stash.git"
+    "url": "git://github.com/rensdv06/git-overwrite-stash.git"
   },
   "license": "MIT",
   "engines": {
