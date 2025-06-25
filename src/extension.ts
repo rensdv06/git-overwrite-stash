@@ -16,7 +16,7 @@ function getExecOptions() {
 }
 
 function extractStashDataFromLine(line: string) {
-    const match = line.match(/stash@{(\d+)}: On (.+): (.+)/);
+    const match = line.match(/stash@{(\d+)}: (?:WIP )?[Oo]n (.+): (.+)/);
     if (!match) {
         throw new Error(
             `Failed to extract stash data from line. No match found for line '${line}'`
