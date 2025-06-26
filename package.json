@@ -21,12 +21,12 @@
     "commands": [
       {
         "command": "git-overwrite-stash.overwriteStash",
-        "title": "Overwrite a Git Stash",
+        "title": "Overwrite Stash",
         "category": "Git Overwrite Stash"
       },
       {
         "command": "git-overwrite-stash.overwriteStashIncludeUntracked",
-        "title": "Overwrite a Git Stash (Include Untracked)",
+        "title": "Overwrite Stash (Include Untracked)",
         "category": "Git Overwrite Stash"
       }
     ]

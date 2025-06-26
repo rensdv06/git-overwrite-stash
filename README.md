@@ -19,7 +19,7 @@ Works by first dropping it and then stashing all changes again (optionally inclu
 
 1. Open the Command Palette (`ctrl + shift + p` by default)
 2. Choose either
-    -   `Git Overwrite Stash: Overwrite a Git Stash`
-    -   `Git Overwrite Stash: Overwrite a Git Stash (Include Untracked)`
+    -   `Git Overwrite Stash: Overwrite Stash`
+    -   `Git Overwrite Stash: Overwrite Stash (Include Untracked)`
 3. Pick a stash
 4. Enter a message (default is the original message)
