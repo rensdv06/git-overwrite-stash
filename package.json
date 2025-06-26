@@ -2,7 +2,7 @@
   "name": "git-overwrite-stash",
   "displayName": "Git overwrite stash",
   "description": "Adds a command to overwrite a Git stash",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "publisher": "rensdv06",
   "repository": {
     "type": "git",

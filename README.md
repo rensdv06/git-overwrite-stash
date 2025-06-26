@@ -10,7 +10,7 @@ Works by first dropping it and then stashing all changes again (optionally inclu
 -   Quick Open: `ext install rensdv06.git-overwrite-stash`
 -   Terminal: `code --install-extension rensdv06.git-overwrite-stash`
 -   Vsix file:
-    1. Download the [vsix file](https://github.com/rensdv06/git-overwrite-stash/releases/download/v1.0.1/git-overwrite-stash-1.0.1.vsix)
+    1. Download the [vsix file](https://github.com/rensdv06/git-overwrite-stash/releases/download/v1.1.0/git-overwrite-stash-1.1.0.vsix)
     2. Open the Command Palette (`ctrl + shift + p` by default)
     3. `Extensions: Install from VSIX...`
     4. Select the vsix file
