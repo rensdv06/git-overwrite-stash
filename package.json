@@ -23,6 +23,11 @@
         "command": "git-overwrite-stash.overwriteStash",
         "title": "Overwrite a Git Stash",
         "category": "Git Overwrite Stash"
+      },
+      {
+        "command": "git-overwrite-stash.overwriteStashIncludeUntracked",
+        "title": "Overwrite a Git Stash (Include Untracked)",
+        "category": "Git Overwrite Stash"
       }
     ]
   },

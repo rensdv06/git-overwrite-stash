@@ -75,13 +75,21 @@ async function promptToEnterStashMessage(defaultValue: string) {
 async function overwriteStash(
     id: number,
     message: string,
-    execOptions: ExecOptions
+    execOptions: ExecOptions,
+    { includeUntracked } = { includeUntracked: false }
 ) {
     await execAsync(`git stash drop "stash@{${id}}"`, execOptions);
-    await execAsync(`git stash -u -m "${message}"`, execOptions);
+
+    let stashCommand = `git stash -m "${message}"`;
+    if (includeUntracked) {
+        stashCommand += " -u";
+    }
+    await execAsync(stashCommand, execOptions);
 }
 
-async function overwriteStashCommand() {
+async function overwriteStashCommand(
+    { includeUntracked } = { includeUntracked: false }
+) {
     try {
         const execOptions = getExecOptions();
         const stashes = await getStashes(execOptions);
@@ -89,7 +97,9 @@ async function overwriteStashCommand() {
         const stashMessage = await promptToEnterStashMessage(
             pickedStash.message
         );
-        overwriteStash(pickedStash.id, stashMessage, execOptions);
+        overwriteStash(pickedStash.id, stashMessage, execOptions, {
+            includeUntracked,
+        });
     } catch (error: any) {
         if (error instanceof CancellationError) {
             console.log(error.message);
@@ -100,12 +110,20 @@ async function overwriteStashCommand() {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-    const disposable = vscode.commands.registerCommand(
+    const overwriteStashDisposable = vscode.commands.registerCommand(
         "git-overwrite-stash.overwriteStash",
         overwriteStashCommand
     );
 
-    context.subscriptions.push(disposable);
+    context.subscriptions.push(overwriteStashDisposable);
+
+    const overwriteStashIncludeUntrackedDisposable =
+        vscode.commands.registerCommand(
+            "git-overwrite-stash.overwriteStashIncludeUntracked",
+            () => overwriteStashCommand({ includeUntracked: true })
+        );
+
+    context.subscriptions.push(overwriteStashIncludeUntrackedDisposable);
 }
 
 export function deactivate() {}
